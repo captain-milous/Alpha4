@@ -1,0 +1,4 @@
+<Configuration>
+  <PortUDP>9876</PortUDP>
+  <PortTCP>8080</PortTCP>
+</Configuration>
