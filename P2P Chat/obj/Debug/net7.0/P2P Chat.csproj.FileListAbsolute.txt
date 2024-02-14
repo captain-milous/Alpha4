@@ -1,0 +1,17 @@
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\P2P Chat.exe
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\P2P Chat.deps.json
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\P2P Chat.runtimeconfig.json
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\P2P Chat.dll
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\P2P Chat.pdb
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.csproj.AssemblyReference.cache
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.AssemblyInfoInputs.cache
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.AssemblyInfo.cs
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.csproj.CoreCompileInputs.cache
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.csproj.CopyComplete
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.dll
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\refint\P2P Chat.dll
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.pdb
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\P2P Chat.genruntimeconfig.cache
+C:\Users\milda\source\repos\Alpha\Alpha4\P2P Chat\obj\Debug\net7.0\ref\P2P Chat.dll
