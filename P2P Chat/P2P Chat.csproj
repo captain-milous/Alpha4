@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="src\log\" />
+    <Compile Remove="src\log\**" />
+    <EmbeddedResource Remove="src\log\**" />
+    <None Remove="src\log\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="src\conf\" />
     <Folder Include="src\UI\" />
   </ItemGroup>
