@@ -32,7 +32,7 @@ namespace P2P_Chat.src
                 using (var client = new UdpClient())
                 {
                     client.EnableBroadcast = true;
-                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 12345);
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 9876);
                     byte[] bytes = Encoding.ASCII.GetBytes(jsonQuery);
                     client.Send(bytes, bytes.Length, endPoint);
                 }
@@ -45,7 +45,7 @@ namespace P2P_Chat.src
         static void ReceiverThread()
         {
             // Vytvoříme UDP listener na portu 9876
-            var listener = new UdpClient(12345);
+            var listener = new UdpClient(9876);
 
             while (true)
             {
