@@ -29,6 +29,7 @@ namespace P2P_Chat.src.conf
                 XDocument doc = XDocument.Load(filePath);
                 newConfig.PortTCP = GetValueFromXml(doc, "PortTCP");
                 newConfig.PortUDP = GetValueFromXml(doc, "PortUDP");
+                newConfig.PeerID = GetValueFromXml(doc, "PeerID");
             }
             catch (Exception ex)
             {

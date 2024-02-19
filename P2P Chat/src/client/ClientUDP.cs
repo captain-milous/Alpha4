@@ -6,29 +6,49 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using P2P_Chat.src.conf;
 
 namespace P2P_Chat.src.client
 {
     public static class ClientUDP
     {
+
+        private static int Port = 9876;
+        private static string Peer_id = "Anonymous";
+        private static bool BlockConnection = false;
+
+        public static void Setup()
+        {
+            try
+            {
+                Port = Int32.Parse(ConfigHandler.Config.PortUDP);
+                Peer_id = ConfigHandler.Config.PeerID;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Chyba v UDP setup: " + e.Message);
+                BlockConnection = true;
+            }
+
+        }
+
         public static void SenderThread()
         {
-            while (true)
+            int failConn = 0;
+            while (!BlockConnection)
             {
                 Console.WriteLine();
                 try
                 {
-                    // Vytvoříme JSON dotaz
-                    var query = new { message = "Hello from peer" };
+                    var query = new { command = "hello", peer_id = Peer_id };
                     string jsonQuery = JsonConvert.SerializeObject(query);
-
                     Console.WriteLine("Q: " + jsonQuery);
 
                     // Odešleme JSON dotaz pomocí UDP broadcastu
                     using (var client = new UdpClient())
                     {
                         client.EnableBroadcast = true;
-                        IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 9876);
+                        IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, Port);
                         byte[] bytes = Encoding.ASCII.GetBytes(jsonQuery);
                         client.Send(bytes, bytes.Length, endPoint);
                     }
@@ -36,36 +56,36 @@ namespace P2P_Chat.src.client
                 catch (Exception e)
                 {
                     Console.WriteLine("Sender error: " + e.Message);
+                    failConn++;
                 }
-
-
-                // Počkáme 5 sekund
-                Thread.Sleep(5000);
+                if(failConn < 5) 
+                {
+                    Thread.Sleep(5000);
+                }
+                else
+                {
+                    Console.WriteLine("Connection Lost");
+                    BlockConnection = true;
+                }
             }
         }
 
         public static void ReceiverThread()
         {
-            // Vytvoříme UDP listener na portu 9876
-            var listener = new UdpClient(9876);
+            var listener = new UdpClient(Port);
 
-            while (true)
+            while (!BlockConnection)
             {
                 try
                 {
-                    // Přijmeme zprávu
                     IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receivedBytes = listener.Receive(ref endPoint);
                     string receivedJson = Encoding.ASCII.GetString(receivedBytes);
-
-                    // Deserializujeme přijatý JSON dotaz
                     dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
                     string message = receivedQuery.message;
 
-                    // Vytvoříme JSON odpověď
-                    var response = new { responseMessage = "Hi, I received your message: " + message };
+                    var response = new { status = "ok", peer_id = Peer_id };
                     string jsonResponse = JsonConvert.SerializeObject(response);
-
                     Console.WriteLine("A: " + jsonResponse);
 
                     // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
@@ -74,7 +94,12 @@ namespace P2P_Chat.src.client
                 }
                 catch (Exception e)
                 {
-                    //Console.WriteLine("Receiver error: " + e.Message);
+                    string message = e.Message;
+                    if(!message.Contains("An existing connection was forcibly closed by the remote host."))
+                    {
+                        Console.WriteLine("Receiver error: " + e.Message);
+                        BlockConnection = true;
+                    }
                 }
 
             }

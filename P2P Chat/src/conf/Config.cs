@@ -11,6 +11,7 @@ namespace P2P_Chat.src.conf
     /// </summary>
     public class Config
     {
+        public string PeerID { get; set; }
         public string PortUDP { get; set; }
         public string PortTCP { get; set; }
 
