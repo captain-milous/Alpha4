@@ -22,20 +22,28 @@ namespace P2P_Chat.src
         {
             while (true)
             {
-                // Vytvoříme JSON dotaz
-                var query = new { message = "Hello from peer" };
-                string jsonQuery = JsonConvert.SerializeObject(query);
-
-                Console.WriteLine("Q: " + jsonQuery);
-
-                // Odešleme JSON dotaz pomocí UDP broadcastu
-                using (var client = new UdpClient())
+                try
                 {
-                    client.EnableBroadcast = true;
-                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 9876);
-                    byte[] bytes = Encoding.ASCII.GetBytes(jsonQuery);
-                    client.Send(bytes, bytes.Length, endPoint);
+                    // Vytvoříme JSON dotaz
+                    var query = new { message = "Hello from peer" };
+                    string jsonQuery = JsonConvert.SerializeObject(query);
+
+                    Console.WriteLine("Q: " + jsonQuery);
+
+                    // Odešleme JSON dotaz pomocí UDP broadcastu
+                    using (var client = new UdpClient())
+                    {
+                        client.EnableBroadcast = true;
+                        IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 9876);
+                        byte[] bytes = Encoding.ASCII.GetBytes(jsonQuery);
+                        client.Send(bytes, bytes.Length, endPoint);
+                    }
+                } 
+                catch (Exception e)
+                {
+                    Console.WriteLine("Sender error: " + e.ToString());
                 }
+                
 
                 // Počkáme 5 sekund
                 Thread.Sleep(5000);
@@ -49,24 +57,32 @@ namespace P2P_Chat.src
 
             while (true)
             {
-                // Přijmeme zprávu
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
-                byte[] receivedBytes = listener.Receive(ref endPoint);
-                string receivedJson = Encoding.ASCII.GetString(receivedBytes);
+                try
+                {
+                    // Přijmeme zprávu
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
+                    byte[] receivedBytes = listener.Receive(ref endPoint);
+                    string receivedJson = Encoding.ASCII.GetString(receivedBytes);
 
-                // Deserializujeme přijatý JSON dotaz
-                dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
-                string message = receivedQuery.message;
+                    // Deserializujeme přijatý JSON dotaz
+                    dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
+                    string message = receivedQuery.message;
 
-                // Vytvoříme JSON odpověď
-                var response = new { responseMessage = "Hi, I received your message: " + message };
-                string jsonResponse = JsonConvert.SerializeObject(response);
+                    // Vytvoříme JSON odpověď
+                    var response = new { responseMessage = "Hi, I received your message: " + message };
+                    string jsonResponse = JsonConvert.SerializeObject(response);
 
-                Console.WriteLine("A: " + jsonResponse);
+                    Console.WriteLine("A: " + jsonResponse);
 
-                // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
-                byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
-                listener.Send(responseBytes, responseBytes.Length, endPoint);
+                    // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
+                    byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
+                    listener.Send(responseBytes, responseBytes.Length, endPoint);
+                } 
+                catch (Exception e)
+                {
+                    Console.WriteLine("Receiver error: " + e.ToString());
+                }
+                
             }
         }
     }
