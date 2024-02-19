@@ -22,8 +22,25 @@ namespace P2P_Chat.src
             // Spustíme vlákno pro příjem JSON dotazů
             Thread receiverThread = new Thread(ClientUDP.ReceiverThread);
             receiverThread.Start();
+
+            // Spustíme vlákno pro výpis přijatých zpráv
+            Thread printThread = new Thread(PrintReceivedMessages);
+            printThread.Start();
         }
 
-        
+        static void PrintReceivedMessages()
+        {
+            while (true)
+            {
+                string message = ClientUDP.GetNextReceivedMessage();
+                if (!string.IsNullOrEmpty(message))
+                {
+                    Console.WriteLine(message);
+                }
+                Thread.Sleep(100); // Pro zachování výkonu vlákna
+            }
+        }
+
+
     }
 }

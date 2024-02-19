@@ -17,6 +17,9 @@ namespace P2P_Chat.src.client
         private static string Peer_id = "Anonymous";
         private static bool BlockConnection = false;
 
+        private static readonly object lockObj = new object();
+        private static Queue<string> receivedMessages = new Queue<string>();
+
         public static void Setup()
         {
             try
@@ -76,23 +79,44 @@ namespace P2P_Chat.src.client
 
             while (!BlockConnection)
             {
+                string command = string.Empty;
+                string status = string.Empty;
                 try
                 {
                     IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
                     byte[] receivedBytes = listener.Receive(ref endPoint);
                     string receivedJson = Encoding.ASCII.GetString(receivedBytes);
                     dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
-                    string message = receivedQuery.message;
-
-                    var response = new { status = "ok", peer_id = Peer_id };
-                    string jsonResponse = JsonConvert.SerializeObject(response);
-                    Console.WriteLine("A: " + jsonResponse);
-
-                    // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
-                    using (var client = new UdpClient())
+                    try
                     {
-                        client.EnableBroadcast = true;
-                        client.Send(Encoding.ASCII.GetBytes(jsonResponse), jsonResponse.Length, endPoint);
+                        command = (string)receivedQuery.command;
+                        //Console.WriteLine(command);
+                    }
+                    catch
+                    {
+                        //Console.WriteLine(receivedQuery);
+                        Console.WriteLine("command not found");
+                    }
+                    try
+                    {
+                        status = (string)receivedQuery.status;
+                        Console.WriteLine("A: " + status);
+                        //Console.WriteLine(receivedQuery);
+                    }
+                    catch { }
+                    if (!string.IsNullOrEmpty(status))
+                    {
+                        AddReceivedMessage(receivedJson);
+                    }
+                    if (command == "hello")
+                    {
+                        var response = new { status = "ok", peer_id = Peer_id };
+                        string jsonResponse = JsonConvert.SerializeObject(response);
+                        //Console.WriteLine("A: " + jsonResponse);
+
+                        // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
+                        byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
+                        listener.Send(responseBytes, responseBytes.Length, endPoint);
                     }
                 }
                 catch (Exception e)
@@ -107,5 +131,31 @@ namespace P2P_Chat.src.client
 
             }
         }
+
+        // Metoda pro přidání přijaté zprávy do fronty
+        public static void AddReceivedMessage(string message)
+        {
+            lock (lockObj)
+            {
+                receivedMessages.Enqueue(message);
+            }
+        }
+
+        // Metoda pro získání a odebrání další přijaté zprávy z fronty
+        public static string GetNextReceivedMessage()
+        {
+            lock (lockObj)
+            {
+                if (receivedMessages.Count > 0)
+                {
+                    return receivedMessages.Dequeue();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
     }
 }
