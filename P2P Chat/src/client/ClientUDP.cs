@@ -109,7 +109,10 @@ namespace P2P_Chat.src.client
                     }
                     else if (!string.IsNullOrEmpty(status))
                     {
-                        AddReceivedMessage("A: " + receivedJson);
+                        if(receivedQuery.peer_id != Peer_id)
+                        {
+                            AddReceivedMessage("A: " + receivedJson);
+                        }
                     }
                 }
                 catch (Exception e)

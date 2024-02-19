@@ -40,7 +40,5 @@ namespace P2P_Chat.src
                 Thread.Sleep(100); // Pro zachování výkonu vlákna
             }
         }
-
-
     }
 }
