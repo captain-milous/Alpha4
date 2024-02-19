@@ -87,36 +87,29 @@ namespace P2P_Chat.src.client
                     byte[] receivedBytes = listener.Receive(ref endPoint);
                     string receivedJson = Encoding.ASCII.GetString(receivedBytes);
                     dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
+                    //Console.WriteLine(receivedQuery);
                     try
                     {
                         command = (string)receivedQuery.command;
-                        //Console.WriteLine(command);
                     }
-                    catch
-                    {
-                        //Console.WriteLine(receivedQuery);
-                        Console.WriteLine("command not found");
-                    }
+                    catch { }
                     try
                     {
                         status = (string)receivedQuery.status;
-                        Console.WriteLine("A: " + status);
-                        //Console.WriteLine(receivedQuery);
                     }
                     catch { }
-                    if (!string.IsNullOrEmpty(status))
-                    {
-                        AddReceivedMessage(receivedJson);
-                    }
                     if (command == "hello")
                     {
                         var response = new { status = "ok", peer_id = Peer_id };
                         string jsonResponse = JsonConvert.SerializeObject(response);
-                        //Console.WriteLine("A: " + jsonResponse);
-
-                        // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
+                        listener.EnableBroadcast = true;
+                        endPoint = new IPEndPoint(IPAddress.Broadcast, Port);
                         byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
                         listener.Send(responseBytes, responseBytes.Length, endPoint);
+                    }
+                    else if (!string.IsNullOrEmpty(status))
+                    {
+                        AddReceivedMessage("A: " + receivedJson);
                     }
                 }
                 catch (Exception e)
