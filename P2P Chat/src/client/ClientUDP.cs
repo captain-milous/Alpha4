@@ -58,7 +58,7 @@ namespace P2P_Chat.src.client
                     Console.WriteLine("Sender error: " + e.Message);
                     failConn++;
                 }
-                if(failConn < 5) 
+                if (failConn < 5)
                 {
                     Thread.Sleep(5000);
                 }
@@ -89,13 +89,16 @@ namespace P2P_Chat.src.client
                     Console.WriteLine("A: " + jsonResponse);
 
                     // Odešleme JSON odpověď zpět na stejnou adresu, ze které jsme obdrželi dotaz
-                    byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
-                    listener.Send(responseBytes, responseBytes.Length, endPoint);
+                    using (var client = new UdpClient())
+                    {
+                        client.EnableBroadcast = true;
+                        client.Send(Encoding.ASCII.GetBytes(jsonResponse), jsonResponse.Length, endPoint);
+                    }
                 }
                 catch (Exception e)
                 {
                     string message = e.Message;
-                    if(!message.Contains("An existing connection was forcibly closed by the remote host."))
+                    if (!message.Contains("An existing connection was forcibly closed by the remote host."))
                     {
                         Console.WriteLine("Receiver error: " + e.Message);
                         BlockConnection = true;

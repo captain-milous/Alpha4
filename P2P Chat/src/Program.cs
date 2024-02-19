@@ -12,6 +12,7 @@ namespace P2P_Chat.src
 
         static void Main(string[] args)
         {
+            ConfigHandler.Load();
             ClientUDP.Setup();
 
             // Spustíme vlákno pro periodické odesílání JSON dotazu
