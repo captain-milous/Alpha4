@@ -30,6 +30,7 @@ namespace P2P_Chat.src.conf
                 newConfig.PortTCP = GetValueFromXml(doc, "PortTCP");
                 newConfig.PortUDP = GetValueFromXml(doc, "PortUDP");
                 newConfig.PeerID = GetValueFromXml(doc, "PeerID");
+                newConfig.LocalAddr = GetValueFromXml(doc, "LocalAddr");
             }
             catch (Exception ex)
             {

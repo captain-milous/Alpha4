@@ -14,6 +14,7 @@ namespace P2P_Chat.src.conf
         public string PeerID { get; set; }
         public string PortUDP { get; set; }
         public string PortTCP { get; set; }
+        public string LocalAddr { get; set; }
 
         /// <summary>
         /// Inicializuje novou instanci třídy Config bez parametrů.

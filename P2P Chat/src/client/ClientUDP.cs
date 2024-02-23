@@ -12,146 +12,75 @@ namespace P2P_Chat.src.client
 {
     public static class ClientUDP
     {
-
-        private static int Port = 9876;
-        private static string Peer_id = "Anonymous";
-        private static bool BlockConnection = false;
-
-        private static readonly object lockObj = new object();
-        private static Queue<string> receivedMessages = new Queue<string>();
-
-        public static void Setup()
+        public static UdpClient udpClient = Peer.udpClient;
+        public static ManualResetEvent receiveDone = new ManualResetEvent(false);
+        public static void UdpListener()
         {
-            try
+            while (true)
             {
-                Port = Int32.Parse(ConfigHandler.Config.PortUDP);
-                Peer_id = ConfigHandler.Config.PeerID;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Chyba v UDP setup: " + e.Message);
-                BlockConnection = true;
-            }
-
-        }
-
-        public static void SenderThread()
-        {
-            int failConn = 0;
-            while (!BlockConnection)
-            {
-                Console.WriteLine();
                 try
                 {
-                    var query = new { command = "hello", peer_id = Peer_id };
-                    string jsonQuery = JsonConvert.SerializeObject(query);
-                    Console.WriteLine("Q: " + jsonQuery);
+                    IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    byte[] data = udpClient.Receive(ref remoteEndPoint);
+                    string message = Encoding.UTF8.GetString(data);
+                    string responseMessage = ProcessReceivedMessage(message);
 
-                    // Odešleme JSON dotaz pomocí UDP broadcastu
-                    using (var client = new UdpClient())
+                    if(responseMessage == "TcpStart")
                     {
-                        client.EnableBroadcast = true;
-                        IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, Port);
-                        byte[] bytes = Encoding.ASCII.GetBytes(jsonQuery);
-                        client.Send(bytes, bytes.Length, endPoint);
+                        string clientIpAddress = remoteEndPoint.Address.ToString();
+                        int clientPort = remoteEndPoint.Port;
+                        string tcpMessage = "Hello from Miloš TCP!";
+
+                        ClientTCP.SendTcpRequest(clientIpAddress, clientPort, tcpMessage);
+                    }
+                    else if (!string.IsNullOrEmpty(responseMessage))
+                    {
+                        byte[] responseData = Encoding.UTF8.GetBytes(responseMessage);
+                        udpClient.Send(responseData, responseData.Length, remoteEndPoint);
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Sender error: " + e.Message);
-                    failConn++;
-                }
-                if (failConn < 5)
-                {
-                    Thread.Sleep(5000);
-                }
-                else
-                {
-                    Console.WriteLine("Connection Lost");
-                    BlockConnection = true;
+                    Console.WriteLine(ex.Message);
+                    break;
                 }
             }
         }
 
-        public static void ReceiverThread()
+        public static void UdpBroadcast()
         {
-            var listener = new UdpClient(Port);
-
-            while (!BlockConnection)
+            while (true)
             {
-                string command = string.Empty;
-                string status = string.Empty;
                 try
                 {
-                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] receivedBytes = listener.Receive(ref endPoint);
-                    string receivedJson = Encoding.ASCII.GetString(receivedBytes);
-                    dynamic receivedQuery = JsonConvert.DeserializeObject(receivedJson);
-                    //Console.WriteLine(receivedQuery);
-                    try
-                    {
-                        command = (string)receivedQuery.command;
-                    }
-                    catch { }
-                    try
-                    {
-                        status = (string)receivedQuery.status;
-                    }
-                    catch { }
-                    if (command == "hello")
-                    {
-                        var response = new { status = "ok", peer_id = Peer_id };
-                        string jsonResponse = JsonConvert.SerializeObject(response);
-                        listener.EnableBroadcast = true;
-                        endPoint = new IPEndPoint(IPAddress.Broadcast, Port);
-                        byte[] responseBytes = Encoding.ASCII.GetBytes(jsonResponse);
-                        listener.Send(responseBytes, responseBytes.Length, endPoint);
-                    }
-                    else if (!string.IsNullOrEmpty(status))
-                    {
-                        if(receivedQuery.peer_id != Peer_id)
-                        {
-                            AddReceivedMessage("A: " + receivedJson);
-                        }
-                    }
+                    string udpMessage = $"{{\"command\":\"hello\",\"peer_id\":\"{Peer.Id}\"}}";
+                    Console.WriteLine("Q: " + udpMessage);
+                    byte[] data = Encoding.UTF8.GetBytes(udpMessage);
+                    udpClient.Send(data, data.Length, new IPEndPoint(IPAddress.Broadcast, Peer.UdpPort));
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    string message = e.Message;
-                    if (!message.Contains("An existing connection was forcibly closed by the remote host."))
-                    {
-                        Console.WriteLine("Receiver error: " + e.Message);
-                        BlockConnection = true;
-                    }
+                    Console.WriteLine(ex.Message);
+                    break;
                 }
-
+                Thread.Sleep(5000);
             }
         }
-
-        // Metoda pro přidání přijaté zprávy do fronty
-        public static void AddReceivedMessage(string message)
+        public static string ProcessReceivedMessage(string receivedMessage)
         {
-            lock (lockObj)
+            string responseMessage = string.Empty;
+            if (receivedMessage != null)
             {
-                receivedMessages.Enqueue(message);
-            }
-        }
-
-        // Metoda pro získání a odebrání další přijaté zprávy z fronty
-        public static string GetNextReceivedMessage()
-        {
-            lock (lockObj)
-            {
-                if (receivedMessages.Count > 0)
+                if (receivedMessage.Contains("\"command\":\"hello\""))
                 {
-                    return receivedMessages.Dequeue();
+                    responseMessage = $"{{ \"status\":\"ok\", \"peer_id\": \"{Peer.Id}\" }}";
                 }
-                else
+                else if (receivedMessage.Contains("\"status\":\"ok\""))
                 {
-                    return null;
+                    responseMessage = "TcpStart";
                 }
             }
+            return responseMessage; // Pokud nechcete odpovídat na tento konkrétní typ zprávy, vrátíte null
         }
-
     }
 }

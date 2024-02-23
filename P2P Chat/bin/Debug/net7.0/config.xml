@@ -1,5 +1,6 @@
 <Configuration>
   <PeerID>tesar-peer1</PeerID>
   <PortUDP>9876</PortUDP>
-  <PortTCP>8080</PortTCP>
+  <PortTCP>9876</PortTCP>
+  <LocalAddr>127.0.0.1</LocalAddr>
 </Configuration>
