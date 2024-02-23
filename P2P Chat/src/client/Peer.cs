@@ -10,6 +10,9 @@ using Newtonsoft.Json;
 
 namespace P2P_Chat.src.client
 {
+    /// <summary>
+    /// Třída Peer poskytuje funkcionalitu pro správu komunikace mezi peery v síti.
+    /// </summary>
     public static class Peer
     {
         private static Config Config = ConfigHandler.Config;
@@ -17,7 +20,9 @@ namespace P2P_Chat.src.client
         public static int UdpPort = 9876;
         public static int TcpPort = 9876;
         public static UdpClient udpClient;
-
+        /// <summary>
+        /// Nastaví konfiguraci a spustí potřebné procesy pro komunikaci.
+        /// </summary>
         public static void Setup()
         {
             try
@@ -27,10 +32,10 @@ namespace P2P_Chat.src.client
                 TcpPort = Int32.Parse(Config.PortTCP);
 
                 udpClient = new UdpClient(UdpPort);
-                Thread ListenerUdp = new Thread(UdpListener);
+                Thread ListenerUdp = new Thread(ClientUDP.Listener);
                 ListenerUdp.Start();
 
-                Thread BroadcastUdp = new Thread(UdpBroadcast);
+                Thread BroadcastUdp = new Thread(ClientUDP.Broadcast);
                 BroadcastUdp.Start();
             }
             catch (Exception ex)

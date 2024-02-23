@@ -10,11 +10,17 @@ using P2P_Chat.src.conf;
 
 namespace P2P_Chat.src.client
 {
+    /// <summary>
+    /// Třída ClientUDP poskytuje metody pro naslouchání a broadcastování UDP zpráv.
+    /// </summary>
     public static class ClientUDP
     {
         public static UdpClient udpClient = Peer.udpClient;
         public static ManualResetEvent receiveDone = new ManualResetEvent(false);
-        public static void UdpListener()
+        /// <summary>
+        /// Metoda pro naslouchání příchozím UDP zprávám a zpracování odpovědí.
+        /// </summary>
+        public static void Listener()
         {
             while (true)
             {
@@ -46,8 +52,10 @@ namespace P2P_Chat.src.client
                 }
             }
         }
-
-        public static void UdpBroadcast()
+        /// <summary>
+        /// Metoda pro broadcastování UDP zpráv.
+        /// </summary>
+        public static void Broadcast()
         {
             while (true)
             {
@@ -66,6 +74,11 @@ namespace P2P_Chat.src.client
                 Thread.Sleep(5000);
             }
         }
+        /// <summary>
+        /// Metoda pro zpracování přijaté UDP zprávy a vygenerování odpovědi.
+        /// </summary>
+        /// <param name="receivedMessage">Přijatá zpráva.</param>
+        /// <returns>Odpověď na zprávu.</returns>
         public static string ProcessReceivedMessage(string receivedMessage)
         {
             string responseMessage = string.Empty;

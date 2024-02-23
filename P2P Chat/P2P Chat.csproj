@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="src\conf\" />
-    <Folder Include="src\UI\" />
   </ItemGroup>
 
   <ItemGroup>

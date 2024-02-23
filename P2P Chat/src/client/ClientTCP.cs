@@ -9,8 +9,17 @@ using System.Threading.Tasks;
 
 namespace P2P_Chat.src.client
 {
+    /// <summary>
+    /// Třída ClientTCP poskytuje metody pro odesílání a zpracování TCP zpráv.
+    /// </summary>
     public static class ClientTCP
     {
+        /// <summary>
+        /// Odešle TCP požadavek na zadanou IP adresu a port s danou zprávou.
+        /// </summary>
+        /// <param name="ipAddress">IP adresa cílového klienta.</param>
+        /// <param name="tcpPort">TCP port cílového klienta.</param>
+        /// <param name="tcpMessage">Zpráva k odeslání.</param>
         public static void SendTcpRequest(string ipAddress, int tcpPort, string tcpMessage)
         {
             try
@@ -37,7 +46,9 @@ namespace P2P_Chat.src.client
                 Console.WriteLine("Error sending TCP request: " + ex.Message);
             }
         }
-
+        /// <summary>
+        /// Zpracovává TCP požadavky od klientů.
+        /// </summary>
         public static void HandleTcpRequests()
         {
             TcpListener server = null;
